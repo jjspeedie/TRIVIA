@@ -195,7 +195,7 @@ def make_cm(path, clip=3., fmin=None, fmed=None, fmax=None, vmin=None, vmax=None
        fig.write_html(path.replace('.fits', '_channel.html'), include_plotlyjs='cdn')
     return
 
-def make_ppv(path, clip=3., rmin=None, rmax=None, N=None, cmin=None, cmax=None, constant_opacity=None, ntrace=20,
+def make_ppv(path, clip=3., rms=None, rmin=None, rmax=None, N=None, cmin=None, cmax=None, constant_opacity=None, ntrace=20,
         marker_size=2, cmap=None, hoverinfo='x+y+z', colorscale=None, xaxis_title=None,
         yaxis_title=None, zaxis_title=None, xaxis_backgroundcolor=None, xaxis_gridcolor=None,
         yaxis_backgroundcolor=None, yaxis_gridcolor=None,
@@ -209,7 +209,9 @@ def make_ppv(path, clip=3., rmin=None, rmax=None, N=None, cmin=None, cmax=None, 
 
     Args:
         path (str): Relative path to the FITS cube.
-        clip (Optional[float]): Clip the cube having cube.data > clip * cube.rms
+        rms (Optional[float]): Clip the cube having cube.data > clip * rms
+                If provided as None, taken as cube.rms
+        clip (Optional[float]): Clip the cube having cube.data > clip * rms
         rmin (Optional[float]): Inner radius of the radial mask
         rmax (Optional[float]): Outer radius of the radial mask
         N (Optional[integer]): Downsample the data by a factor of N.
@@ -277,7 +279,8 @@ def make_ppv(path, clip=3., rmin=None, rmax=None, N=None, cmin=None, cmax=None, 
         cube.velax = newvelax
 
     # Generate a SNR mask
-    mask_SNR = cube.data > clip * cube.rms
+    rms = cube.rms if rms is None else rms
+    mask_SNR = cube.data > clip * rms
 
     # Generate a radial mask
     r, t, z = cube.disk_coords()
