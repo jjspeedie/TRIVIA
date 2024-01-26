@@ -280,6 +280,7 @@ def make_ppv(path, clip=3., rms=None, rmin=None, rmax=None, N=None, cmin=None, c
 
     # Generate a SNR mask
     rms = cube.rms if rms is None else rms
+    print('Clipping data at threshold: ', clip * rms)
     mask_SNR = cube.data > clip * rms
 
     # Generate a radial mask
