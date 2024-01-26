@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import cmasher as cmr
 import plotly.express as px
-import plotly.graph_objects as go 
+import plotly.graph_objects as go
 from scipy.interpolate import RegularGridInterpolator
 from scipy.interpolate import CubicSpline
 from gofish import imagecube
@@ -29,7 +29,7 @@ def concatenate_cmaps(cmap1, cmap2, ratio=None, ntot=None):
     ntop = ntot-nbottom
     newcolors = np.vstack((bottom(np.linspace(0, 1, nbottom)),
                        top(np.linspace(0, 1, ntop))))
-    newcmp = ListedColormap(newcolors, name='newcolormap')    
+    newcmp = ListedColormap(newcolors, name='newcolormap')
     newcmp = np.around(newcmp(range(ntot)),decimals=4)
     colorscale = [[f, 'rgb({}, {}, {})'.format(*newcmp[ff])]
               for ff, f in enumerate(np.around(np.linspace(0, 1, newcmp.shape[0]),decimals=4))]
@@ -59,10 +59,10 @@ def make_cm(path, clip=3., fmin=None, fmed=None, fmax=None, vmin=None, vmax=None
     Args:
         path (str): Relative path to the FITS cube.
         clip (Optional[float]): Plot cube.data < clip * cube.rms in black and white.
-        fmin (Optional[float]): The lower bound of the flux. 
+        fmin (Optional[float]): The lower bound of the flux.
         fmed (Optional[float]): The boundary between bw/color cmaps.
         fmax (Optional[float]): The upper bound of the flux.
-        vmin (Optional[float]): The lower bound of the velocity in km/s. 
+        vmin (Optional[float]): The lower bound of the velocity in km/s.
         vmax (Optional[float]): The upper bound of the velocity in km/s.
         xmin (Optional[float]): The lower bound of X range.
         xmax (Optional[float]): The upper bound of X range.
@@ -93,7 +93,7 @@ def make_cm(path, clip=3., fmin=None, fmed=None, fmax=None, vmin=None, vmax=None
         funit = 'mJy/beam'
 
     if xmin is None:
-        xmin = cube.FOV/2.0 
+        xmin = cube.FOV/2.0
         i = -1
     else:
         xmin = xmin
@@ -143,7 +143,7 @@ def make_cm(path, clip=3., fmin=None, fmed=None, fmax=None, vmin=None, vmax=None
 
     # Interpolate the cube on the RA-Dec plane
     # Caution: This is only for visualization purposes.
-    # Avoid using this interpolation routine for scientific purposes. 
+    # Avoid using this interpolation routine for scientific purposes.
     if not nointerp:
         nx = 400 if nx is None else nx
         ny = 400 if ny is None else ny
@@ -172,10 +172,10 @@ def make_cm(path, clip=3., fmin=None, fmed=None, fmax=None, vmin=None, vmax=None
 
     cmap = concatenate_cmaps('binary','inferno',ratio=fmed/fmax) if cmap is None else concatenate_cmaps('binary',cmap,ratio=fmed/fmax)
 
-    fig = px.imshow(toplot, color_continuous_scale=cmap, origin='lower', 
-                    x=cube.xaxis, y=cube.yaxis, 
-                    zmin=fmin, zmax=fmax, 
-                    labels=dict(x="RA offset [arcsec]", y="Dec offset [arcsec]", 
+    fig = px.imshow(toplot, color_continuous_scale=cmap, origin='lower',
+                    x=cube.xaxis, y=cube.yaxis,
+                    zmin=fmin, zmax=fmax,
+                    labels=dict(x="RA offset [arcsec]", y="Dec offset [arcsec]",
                                 color="Intensity ["+funit+"]", animation_frame="channel"),
                     animation_frame=0,
                    )
@@ -195,8 +195,8 @@ def make_cm(path, clip=3., fmin=None, fmed=None, fmax=None, vmin=None, vmax=None
        fig.write_html(path.replace('.fits', '_channel.html'), include_plotlyjs='cdn')
     return
 
-def make_ppv(path, clip=3., rmin=None, rmax=None, N=None, cmin=None, cmax=None, constant_opacity=None, ntrace=20, 
-        marker_size=2, cmap=None, hoverinfo='x+y+z', colorscale=None, xaxis_title=None, 
+def make_ppv(path, clip=3., rmin=None, rmax=None, N=None, cmin=None, cmax=None, constant_opacity=None, ntrace=20,
+        marker_size=2, cmap=None, hoverinfo='x+y+z', colorscale=None, xaxis_title=None,
         yaxis_title=None, zaxis_title=None, xaxis_backgroundcolor=None, xaxis_gridcolor=None,
         yaxis_backgroundcolor=None, yaxis_gridcolor=None,
         zaxis_backgroundcolor=None, zaxis_gridcolor=None,
@@ -210,19 +210,19 @@ def make_ppv(path, clip=3., rmin=None, rmax=None, N=None, cmin=None, cmax=None, 
     Args:
         path (str): Relative path to the FITS cube.
         clip (Optional[float]): Clip the cube having cube.data > clip * cube.rms
-        rmin (Optional[float]): Inner radius of the radial mask 
-        rmax (Optional[float]): Outer radius of the radial mask 
-        N (Optional[integer]): Downsample the data by a factor of N. 
-        cmin (Optional[float]): The lower bound of the velocity for the colorscale in km/s. 
-        cmax (Optional[float]): The upper bound of the velocity for the colorscale in km/s. 
+        rmin (Optional[float]): Inner radius of the radial mask
+        rmax (Optional[float]): Outer radius of the radial mask
+        N (Optional[integer]): Downsample the data by a factor of N.
+        cmin (Optional[float]): The lower bound of the velocity for the colorscale in km/s.
+        cmax (Optional[float]): The upper bound of the velocity for the colorscale in km/s.
         constant_opacity (Optional[float]): If not None, use a constant opacity of the given value.
         ntrace (Optional[integer]): Number of opacity layers.
         markersize (Optional[integer]): Size of the marker in the PPV diagram.
         cmap (Optional[str]): Name of the colormap to use for the PPV diagram.
         hoverinfo (Optional[str]): Determines which trace information appear on hover.
-                   Any combination of "x", "y", "z", "text", "name" joined with a "+" 
-                   or "all" or "none" or "skip". If `none` or `skip` are set, no 
-                   information is displayed upon hovering. But, if `none` is set, 
+                   Any combination of "x", "y", "z", "text", "name" joined with a "+"
+                   or "all" or "none" or "skip". If `none` or `skip` are set, no
+                   information is displayed upon hovering. But, if `none` is set,
                    click and hover events are still fired.
         xaxis_title (Optional[str]): X-axis title.
         yaxis_title (Optional[str]): Y-axis title.
@@ -269,7 +269,7 @@ def make_ppv(path, clip=3., rmin=None, rmax=None, N=None, cmin=None, cmax=None, 
     j -= 1 if cube.velax[j] > vmax else 0
     cube.velax = cube.velax[i:j+1]
     cube.data = cube.data[i:j+1]
-    
+
     if dv is not None:
         newvelax = np.arange(cube.velax[0], cube.velax[-1], dv*1.0e3)
         cs = CubicSpline(cube.velax, cube.data, axis=0)
@@ -278,7 +278,7 @@ def make_ppv(path, clip=3., rmin=None, rmax=None, N=None, cmin=None, cmax=None, 
 
     # Generate a SNR mask
     mask_SNR = cube.data > clip * cube.rms
-    
+
     # Generate a radial mask
     r, t, z = cube.disk_coords()
     rmin = 0 if rmin is None else rmin
@@ -296,9 +296,9 @@ def make_ppv(path, clip=3., rmin=None, rmax=None, N=None, cmin=None, cmax=None, 
     i = np.around(cube.data[mask],decimals=3)
 
     # Take N random voxel.
-    N = np.int(np.max([v.size/1.0e5,1])) if N is None else N
+    N = int(np.max([v.size/1.0e5,1])) if N is None else N # `np.int` was a deprecated alias for the builtin `int`
     if N > 1:
-        idx = np.arange(v.size) 
+        idx = np.arange(v.size)
         np.random.shuffle(idx)
         v = v[idx][::N]
         x = x[idx][::N]
@@ -347,39 +347,39 @@ def make_ppv(path, clip=3., rmin=None, rmax=None, N=None, cmin=None, cmax=None, 
                                marker=dict(size=marker_size, color=v[mask], colorscale=colorscale,
                                            cauto=False, cmin=cmin, cmax=cmax,
                                            opacity=min(1.0, alpha)),
-                               hoverinfo=hoverinfo, 
+                               hoverinfo=hoverinfo,
 #legendgroup="group1", name="SO", showlegend=True if a==0 else False,
 #                              name='I ='+(str('% 4.2f' % cuts[a]))+' -'+(str('% 4.2f' % cuts[a+1]))
                               )
                  ]
 
     # layout
-    layout = go.Layout(scene=dict(xaxis_title=xaxis_title, 
+    layout = go.Layout(scene=dict(xaxis_title=xaxis_title,
                                   yaxis_title=yaxis_title,
                                   zaxis_title=zaxis_title,
-                                  xaxis_backgroundcolor=xaxis_backgroundcolor, 
+                                  xaxis_backgroundcolor=xaxis_backgroundcolor,
                                   xaxis_gridcolor=xaxis_gridcolor,
-                                  yaxis_backgroundcolor=yaxis_backgroundcolor, 
+                                  yaxis_backgroundcolor=yaxis_backgroundcolor,
                                   yaxis_gridcolor=yaxis_gridcolor,
-                                  zaxis_backgroundcolor=zaxis_backgroundcolor, 
+                                  zaxis_backgroundcolor=zaxis_backgroundcolor,
                                   zaxis_gridcolor=zaxis_gridcolor,
                                   xaxis_range=[xmin, xmax],
                                   yaxis_range=[ymin, ymax],
                                   zaxis_range=[vmin/1.0e3, vmax/1.0e3],
                                   aspectmode='cube'),
-#                       margin=dict(l=0, r=0, b=0, t=0), 
+#                       margin=dict(l=0, r=0, b=0, t=0),
                        margin=dict(l=0, r=0, b=0, t=0), showlegend=False,
                        )
 
     fig = go.Figure(data=datas, layout=layout)
 
-    fig.update_traces(projection_x=dict(show=projection_x, opacity=1), 
+    fig.update_traces(projection_x=dict(show=projection_x, opacity=1),
                       projection_y=dict(show=projection_y, opacity=1),
                       projection_z=dict(show=projection_z, opacity=1),
                      )
 
     if show_colorbar:
-        fig.update_traces(marker_colorbar=dict(thickness=20, 
+        fig.update_traces(marker_colorbar=dict(thickness=20,
 #                                               tickvals=np.arange(cmin,cmax+1),
                                                tickformat='.1f',
                                                title='v [km/s]',
@@ -412,4 +412,3 @@ def make_ppv(path, clip=3., rmin=None, rmax=None, N=None, cmin=None, cmax=None, 
         df = pd.DataFrame({"RA offset" : x, "Dec offset" : y, "velocity" : v})
         df.to_csv(path.replace('.fits', '_ppv.csv'), float_format='%.3e', index=False)
     return
-
