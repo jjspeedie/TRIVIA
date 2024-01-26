@@ -195,7 +195,8 @@ def make_cm(path, clip=3., fmin=None, fmed=None, fmax=None, vmin=None, vmax=None
        fig.write_html(path.replace('.fits', '_channel.html'), include_plotlyjs='cdn')
     return
 
-def make_ppv(path, clip=3., rms=None, rmin=None, rmax=None, N=None, cmin=None, cmax=None, constant_opacity=None, ntrace=20,
+def make_ppv(path, path_to_mask=None, clip=3., rms=None, rmin=None, rmax=None, N=None,
+        cmin=None, cmax=None, constant_opacity=None, ntrace=20,
         marker_size=2, cmap=None, hoverinfo='x+y+z', colorscale=None, xaxis_title=None,
         yaxis_title=None, zaxis_title=None, xaxis_backgroundcolor=None, xaxis_gridcolor=None,
         yaxis_backgroundcolor=None, yaxis_gridcolor=None,
@@ -209,6 +210,8 @@ def make_ppv(path, clip=3., rms=None, rmin=None, rmax=None, N=None, cmin=None, c
 
     Args:
         path (str): Relative path to the FITS cube.
+        path_to_mask (Optional[str]): Relative path to a second FITS cube to be
+                used as a weighting function for the main cube data
         rms (Optional[float]): Clip the cube having cube.data > clip * rms
                 If provided as None, taken as cube.rms
         clip (Optional[float]): Clip the cube having cube.data > clip * rms
@@ -260,6 +263,17 @@ def make_ppv(path, clip=3., rms=None, rmin=None, rmax=None, N=None, cmin=None, c
     cube = imagecube(path)
     cube.data = cube.data.astype(float)
 
+    # Evaluate rms (not affected by custom weighting)
+    rms = cube.rms if rms is None else rms
+
+    # Apply custom weighting to the main FITS cube, e.g. to isolate non-Keplerian emission
+    if path_to_mask is not None:
+         cube_mask = imagecube(path_to_mask)
+         cube_mask.data = cube_mask.data.astype(float)
+         print('WARNING: Multiplying cube data with provided mask cube data.')
+         cube.data *= cube_mask.data
+         path = path.replace('.fits', '_weighted.fits')
+
     # Crop the data along the velocity axis, implemented from gofish
 #    vmin = cube.velax[0] if vmin is None else vmin*1.0e3
 #    vmax = cube.velax[-1] if vmax is None else vmax*1.0e3
@@ -279,7 +293,6 @@ def make_ppv(path, clip=3., rms=None, rmin=None, rmax=None, N=None, cmin=None, c
         cube.velax = newvelax
 
     # Generate a SNR mask
-    rms = cube.rms if rms is None else rms
     print('Clipping data at threshold: ', clip * rms)
     mask_SNR = cube.data > clip * rms
 
