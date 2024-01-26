@@ -45,7 +45,7 @@ def make_colorscale(cmap):
     Returns:
         A list containing CSS-compatible color table.
     """
-    cmarr = np.array(cmr.take_cmap_colors('cmr.pride', 128))
+    cmarr = np.array(cmr.take_cmap_colors(cmap, 128))
     colorscale = [[f, 'rgb({}, {}, {})'.format(*cmarr[ff])]
                   for ff, f in enumerate(np.linspace(0, 1, cmarr.shape[0]))]
     return colorscale
@@ -223,7 +223,7 @@ def make_ppv(path, path_to_mask=None, clip=3., rms=None, rmin=None, rmax=None, N
         constant_opacity (Optional[float]): If not None, use a constant opacity of the given value.
         ntrace (Optional[integer]): Number of opacity layers.
         markersize (Optional[integer]): Size of the marker in the PPV diagram.
-        cmap (Optional[str]): Name of the colormap to use for the PPV diagram.
+        cmap (Optional[str]): Name of the colormap to use for the PPV diagram e.g., 'cmr.pride'
         hoverinfo (Optional[str]): Determines which trace information appear on hover.
                    Any combination of "x", "y", "z", "text", "name" joined with a "+"
                    or "all" or "none" or "skip". If `none` or `skip` are set, no
@@ -352,7 +352,7 @@ def make_ppv(path, path_to_mask=None, clip=3., rms=None, rmin=None, rmax=None, N
     if rmax is not None:
         xmin, xmax, ymin, ymax = rmax, -rmax, -rmax, rmax
 
-    colorscale = make_colorscale('cmr.pride') if colorscale is None else cmap
+    colorscale = make_colorscale(cmap) if colorscale is None else cmap
     cmin = vmin/1.0e3 if cmin is None else cmin
     cmax = vmax/1.0e3 if cmax is None else cmax
 
