@@ -195,6 +195,70 @@ def make_cm(path, clip=3., fmin=None, fmed=None, fmax=None, vmin=None, vmax=None
        fig.write_html(path.replace('.fits', '_channel.html'), include_plotlyjs='cdn')
     return
 
+# def plot_keplerian_surface(cube, inc, PA, mstar, dist, x0=0.0, y0=0.0, vlsr=0.0,
+#               z0=None, psi=None, r_cavity=None, r_taper=None, q_taper=None,
+#               z1=None, phi=None, z_func=None, r_min=None, r_max=None,
+#               cylindrical=False, shadowed=False):
+#     """
+#     Plot projected Keplerian velocity profile as a surface onto PPV diagram.
+#
+#         Args:
+#             <<<<< From Rich Teague's gofish >>>>>
+#             inc (float): Inclination of the disk in [degrees].
+#             PA (float): Position angle of the disk in [degrees],
+#                 measured east-of-north towards the redshifted major axis.
+#             mstar (float): Stellar mass in [Msun].
+#             dist (float): Distance to the source in [pc].
+#             x0 (Optional[float]): Source center offset along the x-axis in
+#                 [arcsec].
+#             y0 (Optional[float]): Source center offset along the y-axis in
+#                 [arcsec].
+#             vlsr (Optional[float]): Systemic velocity in [m/s].
+#             z0 (Optional[float]): Emission height in [arcsec] at a radius of
+#                 1".
+#             psi (Optional[float]): Flaring angle of the emission surface.
+#             r_cavity (Optional[float]): Edge of the inner cavity for the
+#                 emission surface in [arcsec].
+#             r_taper (Optional[float]): Characteristic radius in [arcsec] of the
+#                 exponential taper to the emission surface.
+#             q_taper (Optional[float]): Exponent of the exponential taper of the
+#                 emission surface.
+#             z1 (Optional[float]): Correction to emission height at 1" in
+#                 [arcsec].
+#             phi (Optional[float]): Flaring angle correction term.
+#             z_func (Optional[callable]): A function which returns the emission
+#                 height in [arcsec] for a radius given in [arcsec].
+#             r_min (Optional[float]): The inner radius in [arcsec] to model.
+#             r_max (Optional[float]): The outer radius in [arcsec] to model.
+#             cylindrical (Optional[bool]): If ``True``, force cylindrical
+#                 rotation, i.e. ignore the height in calculating the velocity.
+#             shadowed (Optional[bool]): If ``True``, use a slower algorithm for
+#                 deprojecting the pixel coordinates into disk-center coordiantes
+#                 which can handle shadowed pixels.
+#     """
+#     # Projected Keplerian velocity profile in [km/s] from gofish
+#     v_los  = cube.keplerian(
+#                   inc=inc,
+#                   PA=PA,
+#                   mstar=mstar,
+#                   dist=dist,
+#                   x0=x0,
+#                   y0=y0,
+#                   vlsr=vlsr,
+#                   z0=z0,
+#                   psi=psi,
+#                   r_cavity=r_cavity,
+#                   r_taper=r_taper,
+#                   q_taper=q_taper,
+#                   z1=z1,
+#                   phi=phi,
+#                   z_func=z_func,
+#                   r_min=r_min,
+#                   r_max=r_max,
+#                   cylindrical=cylindrical,
+#                   shadowed=shadowed)      * 1e3
+
+
 def make_ppv(path, path_to_mask=None, clip=3., rms=None, rmin=None, rmax=None, N=None,
         cmin=None, cmax=None, constant_opacity=None, ntrace=20,
         marker_size=2, cmap=None, hoverinfo='x+y+z', colorscale=None, xaxis_title=None,
@@ -202,6 +266,7 @@ def make_ppv(path, path_to_mask=None, clip=3., rms=None, rmin=None, rmax=None, N
         yaxis_backgroundcolor=None, yaxis_gridcolor=None,
         zaxis_backgroundcolor=None, zaxis_gridcolor=None,
         xmin=None, xmax=None, ymin=None, ymax=None, vmin=None, vmax=None, dv=None,
+        overplot_keplerian_surface=False, keplerian_surface_kwargs=None,
         projection_x=False, projection_y=False, projection_z=True,
         show_colorbar=True, camera_eye_x=-1., camera_eye_y=-2., camera_eye_z=1.,
         show_figure=False, write_pdf=True, write_html=True, write_csv=False):
@@ -245,6 +310,10 @@ def make_ppv(path, path_to_mask=None, clip=3., rms=None, rmin=None, rmax=None, N
         vmin (Optional[float]): The lower bound of PPV diagram Z range in km/s.
         vmax (Optional[float]): The upper bound of PPV diagram Z range in km/s.
         dv (Optional[float]): Desired velocity resolution in km/s.
+        overplot_keplerian_surface (Optional[bool]): If True, overplot a projected
+                Keplerian velocity profile onto PPV diagram as a 2D surface.
+        keplerian_surface_kwargs (Optional[dict]): Arguments to pass to gofish
+                self.keplerian() function for projected Keplerian velocity profile.
         projection_x (Optional[bool]): Whether or not to add projection on the Y-Z plane.
         projection_y (Optional[bool]): Whether or not to add projection on the X-Z plane.
         projection_z (Optional[bool]): Whether or not to add projection on the X-Y plane.
@@ -405,6 +474,12 @@ def make_ppv(path, path_to_mask=None, clip=3., rms=None, rmin=None, rmax=None, N
                                               )
                          )
 #        fig.update_layout(coloraxis_colorbar_x=-1.)
+
+    if overplot_keplerian_surface:
+        vkep   = cube.keplerian(**keplerian_surface_kwargs) / 1e3 # Convert m/s to km/s
+        print("Overplotting projected Keplerian velocity profile as 2D surface. The output file can be very large!")
+        fig.add_trace(go.Surface(z=vkep, x=cube.xaxis, y=cube.yaxis, opacity=1.0,
+                                 colorscale=[[0,'gainsboro'], [1,'gainsboro']], showscale=False))
 
     camera = dict(up=dict(x=0, y=0, z=1),
                   center=dict(x=0, y=0, z=0),
